@@ -2,16 +2,17 @@ clear
 %% Inputs 
 % Rx
 F_s = 1e6;            % Sampling frequency [Hz]
-T   = 1;              %Record Time [s];
+T   = .1;              %Record Time [s];
 t = 0:1/F_s:T;       % Time vector [s]
 L = length(t);      % Recording length [ ]
 % Tx
-f_c = 1e3;            % Intial frequency of chirp [Hz] 
-swp = 15e5;           % Sweep frequency of chirp [Hz/s]
-t_c = 1e-2;            % Chirp Length [s]
+f_c = 1e2;            % Intial frequency of chirp [Hz] 
+swp = 2e5;           % Sweep frequency of chirp [Hz/s]
+t_c = 1/f_c*4;            % Chirp Length [s]
 % Scatterer
-r = 5e6;            %range relay [m]
-delay = r/3e8;         %Range delay in time [s]
+c= 3e8;
+r = c./f_c*1.5;   %range relay [m]
+delay = r/c;         %Range delay in time [s]
 
 %% Lets make a chrip!
 t_sub = 0:1/F_s:t_c;
@@ -21,7 +22,7 @@ X(1:length(t_sub)) = exp(1i*(pi.*swp.*t_sub.^2+2.*pi.*f_c.*t_sub));
 %% Delay said chirp by a range factor, reflect it back
 % Feel free to also reduce by some geometric/attenuation factor
 amp = 1;
-X_r = chirpOut(X,t,r,0);
+X_r = chirpOut(X,t,r,0,f_c);
 
 %% Get ready to DFT the pulse, mostly for fun
 % This part I took from the internet, I don't really know the details
@@ -44,7 +45,7 @@ plot(t,real(X))
 hold on
 plot(t,real(X_r));
 title('Pulse in Time Domain')
-xlabel('Time (t)')
+xlabel('time (s)')
 ylabel('X(t)')
 legend('Tx','Rx')
 
@@ -58,5 +59,5 @@ ylabel('|P(f)|')
 subplot(313)
 plot(t,abs((MF)))
 title('Match Filtered Rx in Time Domain')
-xlabel('Time (t)')
+xlabel('Time (s)')
 ylabel('X(t)')
