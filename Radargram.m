@@ -1,0 +1,38 @@
+% Lots of chirps while moving btwn chirps, try a radargram
+% Rx
+F_s = 1e6;            % Sampling frequency [Hz]
+T   = .1;              %Record Time [s];
+t = 0:1/F_s:T;       % Time vector [s]
+L = length(t);      % Recording length [ ]
+% Tx
+f_c = 1e3;            % Intial frequency of chirp [Hz] 
+swp = 15e5;           % Sweep frequency of chirp [Hz/s]
+t_c = 1e-2;            % Chirp Length [s]
+
+n = 100; %surface sample points
+Y = zeros(n,L);
+Ymf = Y;
+
+t_sub = 0:1/F_s:t_c;
+X = zeros(size(t));
+X(1:length(t_sub)) = exp(1i*(pi.*swp.*t_sub.^2+2.*pi.*f_c.*t_sub));
+
+%sweep along surface, let full pulse out and wait for return, then move.
+for i = 1:n
+    r = sqrt((5e6).^2 + ((i-50)*2e5).^2);
+    y_tmp = chirpOut(X,t,r,0);
+    Y(i,:) = y_tmp;
+    Ymf = ifft( fft(y_tmp)  .* conj( fft(X) ) );
+end
+
+%Plot the returns, abs() of complex values to display
+figure
+subplot(211)
+imagesc(abs(Y'))
+colorbar
+subplot(212)
+imagesc(abs(Ymf'))
+colorbar
+
+
+
