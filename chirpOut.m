@@ -13,7 +13,7 @@ amp = 1;
 % amp = exp(-r/1e7);
 
 %% Noise, if you want it
-SNR = 2;
+SNR = 100;
 noise = randn(size(X)).*exp(1i*rand(size(X))*2*pi); %Rand amp (normal), rand phase (uniform)
 % noise = zeros(size(X));  %b/c dividing by 0 is hard, use this for 0 noise
 %% Shift in space, apply phase and attenuation
