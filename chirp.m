@@ -14,7 +14,7 @@ c= 3e8;
 r = c./f_c*1.5;   %range relay [m]
 delay = r/c;         %Range delay in time [s]
 
-%% Lets make a chrip!
+%% Lets make a chirp!
 t_sub = 0:1/F_s:t_c;
 X = zeros(size(t));
 X(1:length(t_sub)) = exp(1i*(pi.*swp.*t_sub.^2+2.*pi.*f_c.*t_sub));
