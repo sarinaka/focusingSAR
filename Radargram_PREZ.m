@@ -57,7 +57,7 @@ xlabel('along track')
 title('Match Filtered data')
 colorbar
 
-% figure(2) %very slow plotting, but cool to see waveforms!
+% figure(2) %very slow plotting, but nice to see waveforms!
 % clf
 % subplot(211)
 % wiggle(real(Y'))
