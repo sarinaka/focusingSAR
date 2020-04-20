@@ -4,13 +4,13 @@
 clear
 %% Inputs
 % Rx parameters [This takes 200+ seconds to run on my computer, be warned!
-F_s = 800e5;            % Sampling frequency [Hz]
+F_s = 40e6;            % Sampling frequency [Hz], since complex Nyquist is at max freq
 T   = .1;              %Record Time [s];
 t = 0:1/F_s:T;       % Time vector [s]
 L = length(t);      % Recording vector length [ ]
 % Tx parameters
-f_c = 200e5;            % Intial frequency of chirp [Hz] 
-swp = 200e5;           % Sweep frequency of chirp [Hz/s]
+f_c = 20e6;            % Intial frequency of chirp [Hz] 
+swp = 20e6;           % Sweep frequency of chirp [Hz/s]
 t_c = .1;            % Chirp Length [s]
 % Survey Parameters
 n = 20; %surface sample points
