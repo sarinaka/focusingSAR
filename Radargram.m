@@ -1,20 +1,20 @@
 % This is a script to make n chirps from stationary platform, while moving 
-% between chirps to make a scene. Produce both raw data and match filtered
+% between chirps to make a scene. Produces both raw data and match filtered
 % data products
 clear
 %% Inputs
 % Rx parameters
 F_s = 1e7;            % Sampling frequency [Hz]
-T   = 3e-4;              %Record Time [s];
-t = 0:1/F_s:T;       % Time vector [s]
-L = length(t);      % Recording vector length [ ]
+T   = 3e-4;           % Record Time [s];
+t = 0:1/F_s:T;        % Time vector [s]
+L = length(t);        % Recording vector length [ ]
 % Tx parameters
 f_c = 2e6;            % Intial frequency of chirp [Hz] 
-swp = 2e6;           % Sweep frequency of chirp [Hz/s]
-t_c = 1e-5;            % Chirp Length [s]
+swp = 2e6;            % Sweep frequency of chirp [Hz/s]
+t_c = 1e-5;           % Chirp Length [s]
 % Survey Parameters
-n = 101; %surface sample points
-dx = 1e3; % Distance between sample points [m]
+n = 101; 			  %surface sample points
+dx = 1e3;  			  % Distance between sample points [m]
 
 %% Make pulse
 t_sub = 0:1/F_s:t_c; %pulse only for duration of pulse
