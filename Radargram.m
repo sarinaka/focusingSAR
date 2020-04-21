@@ -43,17 +43,17 @@ end
 figure(1) %Faster plotting option, but can't see waves
 clf
 subplot(211)
-imagesc(abs(Y'))
-ylabel('range')
-xlabel('along track')
-title('Raw data')
-colorbar
+	imagesc(abs(Y'))
+	ylabel('range')
+	xlabel('along track')
+	title('Raw data')
+	colorbar
 subplot(212)
-imagesc(abs(Ymf'))
-ylabel('range')
-xlabel('along track')
-title('Match Filtered data')
-colorbar
+	imagesc(abs(Ymf'))
+	ylabel('range')
+	xlabel('along track')
+	title('Match Filtered data')
+	colorbar
 
 % figure(2) %very slow plotting, but cool to see waveforms!
 % clf
