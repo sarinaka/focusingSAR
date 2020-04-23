@@ -9,14 +9,17 @@ T   = 1e-4;           % Record Time [s];
 t = 0:1/f_s:T;        % Time vector [s]
 L = length(t);        % Recording vector length [ ]
 % Tx parameters
-f_c = 5e6;            % Intial frequency of chirp [Hz] 
-swp = 15e6/T;            % Sweep frequency of chirp [Hz/s]
+f_0 = 20e6;           % Intial frequency of chirp [Hz] 
+swp = 40e6;           % BW of chirp [Hz]
+f_c = f_0 + swp/2;    % Center frequency [Hz]
+           
 t_c = 1e-5;           % Chirp Length [s]
 % Survey Parameters
 c = 3e8/1.31;
 lambda_c = c/f_c;% Wavelength in ice [m]
 n = 1001; 			  %surface sample points
 dx = 800/1001;  	  % Distance between sample points [m]
+xx = (([1:n]*dx)-(n+1)/2*dx)';
 depth = 4e3;          % Scatter Depth [m]
 % Plotting params
 delay_index = round(depth*2/c*f_s);
@@ -27,7 +30,7 @@ i_max = delay_index+i_range;
 %% Make pulse
 t_sub = 0:1/f_s:t_c; %pulse only for duration of pulse
 X = zeros(size(t));  %pulse signal is 0 otherwise
-X(1:length(t_sub)) = exp(1i*(pi.*swp.*t_sub.^2+2.*pi.*f_c.*t_sub)); %LFMCM pulse
+X(1:length(t_sub)) = exp(1i*(pi.*(swp/t_c).*t_sub.^2+2.*pi.*f_c.*t_sub)); %LFMCM pulse
 
 %% Sweep along surface, let full pulse out and wait for return, then move.
 Y = zeros(n,L); %initialize raw data field
@@ -35,9 +38,9 @@ Ymf = Y;        %initialize match filtered data field
 R = zeros(n,1);
 for i = 1:n
     %Find range, shift chirp (in Time and Fx)
-    r = sqrt((depth).^2 + ((i-500)*dx).^2);
-    R(i) = r;
-    y_tmp = chirpOut(X,t,r,0,f_c,f_s);
+    r1 = sqrt((depth).^2 + ((i-500)*dx).^2);
+    r2 = sqrt((depth+1e2).^2 + ((i-250)*dx).^2);
+    y_tmp = chirpOut(X,t,r1,0,f_c,f_s) + chirpOut(X,t,r2,0,f_c,f_s);
     
     %raw data
     Y(i,:) = y_tmp; 
@@ -46,6 +49,18 @@ for i = 1:n
     % loop if we wanted, indepentent to data collection
     Ymf(i,:) = ifft( fft(y_tmp)  .* conj( fft(X) ) );
     clear r y_tmp
+end
+clear i
+
+%% Azimuth Processing
+Ymfaz = zeros(n,i_range*2+1);
+%shift in reflector to our domain
+w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
+for j = 1:L
+    rr = 2 * sqrt(xx.^2 + ((i_min-1+j)*(1/f_s)*c/2)^2);
+    z = Ymf(:,j);
+    az = exp(1i.*(2.*pi*2*rr./lambda_c));
+    Ymfaz(:,j) = ifft( fft(z)  .* conj( fft(az) ) .* w);
 end
 
 %% Plot the returns, abs() of complex values to display
@@ -64,11 +79,11 @@ subplot(312)
 	title('Match Filtered data')
 	colorbar
 subplot(313)
-    imagesc(real(Ymf(:,i_min:i_max)'))
+    imagesc(abs(Ymfaz(:,i_min:i_max)'))
     colorbar
     ylabel('range')
     xlabel('along track')
-    title('Phase of match filtered data')
+    title('Azimuth Focused Data')
 
 % figure(2) %very slow plotting, but cool to see waveforms!
 % clf
@@ -89,17 +104,35 @@ subplot(313)
 % xlabel('along track')
 % title('Phase of Match Filtered data')
 
-%% 
-figure(3)
-clf
-plot(real(Ymf(:,i_min:i_max)))
-title('azimuth real data at reflector')
+%% Azimuth Focusing play area
 
-% figure(4)
+% figure(3)
 % clf
-% plot((R-depth)/lambda_c)
-% title('Range change in units of wavelength')
+% subplot(311)
+% plot(real(Y(:,delay_index)))
+% title('azimuth real data at reflector')
 % 
-% figure(5)
-% plot(real(exp(1i.*(2.*pi*2*R./lambda_c))))
+% % figure(4)
+% % clf
+% % plot((R-depth)/lambda_c)
+% % title('Range change in units of wavelength')
+% % 
+% subplot(312)
+% rr = 2 * sqrt(xx.^2 + depth^2);
+% plot(real(exp(1i.*(2.*pi*2*(rr)./lambda_c))))
 % title('expected phase shift')
+% 
+% 
+% z = Ymf(:,delay_index);
+% az = exp(1i.*(2.*pi*2*rr./lambda_c));
+% w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
+% 
+% if mod(n, 2) == 0
+% 	% Force conjugate symmetry. Otherwise this frequency component has no
+% 	% corresponding negative frequency to cancel out its imaginary part.
+% 	w(n/2+1) = real(w(n/2+1));
+% end 
+% Zmf = ifft( fft(z)  .* conj( fft(az) ) .* w);
+% % Zmf = conv(z,az);
+% subplot(313)
+% plot(abs(Zmf))
