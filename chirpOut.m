@@ -26,6 +26,6 @@ if mod(N, 2) == 0
 	% corresponding negative frequency to cancel out its imaginary part.
 	w(N/2+1) = real(w(N/2+1));
 end 
-Y = ifft(x .* w) * exp(1i*(-2*pi*2*r/lambda_c)) + noise./SNR;
+Y = ifft(x .* w) * exp(1i*(2*pi*2*r/lambda_c)) + noise./SNR;
 % Interpolation range shift
 % Y = amp*interp1(t,X,t-delay,'pchip',0).*exp(1i.*(2.*pi*r./lambda_c)) + noise./SNR;
