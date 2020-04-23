@@ -3,10 +3,10 @@
 % data products
 clear
 %% Inputs
-% Rx parameters [This takes 200+ seconds to run on my computer, be warned!
-F_s = 40e6;            % Sampling frequency [Hz], since complex Nyquist is at max freq
+% Rx parameters [This takes 100+ seconds to run on my computer, be warned!
+f_s = 40e6;            % Sampling frequency [Hz], since complex Nyquist is at max freq
 T   = .1;              %Record Time [s];
-t = 0:1/F_s:T;       % Time vector [s]
+t = 0:1/f_s:T;       % Time vector [s]
 L = length(t);      % Recording vector length [ ]
 % Tx parameters
 f_c = 20e6;            % Intial frequency of chirp [Hz] 
@@ -17,7 +17,7 @@ n = 20; %surface sample points
 dx = 1e3; % Distance between sample points [m]
 
 %% Make pulse
-t_sub = 0:1/F_s:t_c; %pulse only for duration of pulse
+t_sub = 0:1/f_s:t_c; %pulse only for duration of pulse
 X = zeros(size(t));  %pulse signal is 0 otherwise
 X(1:length(t_sub)) = exp(1i*(pi.*swp.*t_sub.^2+2.*pi.*f_c.*t_sub)); %LFMCM pulse
 
@@ -30,7 +30,7 @@ for i = 1:n
     %Find range, shift chirp (in Time and Fx)
     r = sqrt((4e3).^2 + ((i-floor(n/2))*dx).^2);
     R(i) = r;
-    y_tmp = chirpOut(X,t,r,0,f_c);
+    y_tmp = chirpOut(X,t,r,0,f_c,f_s);
     
     %raw data
     Y(i,:) = y_tmp; 
@@ -65,7 +65,7 @@ colorbar
 % xlabel('along track')
 % title('Raw data')
 % subplot(212)
-% wiggle(abs(Ymf'))
+% wiggle(real(Ymf(:,1:15000)'))
 % ylabel('range')
 % xlabel('along track')
 % title('Range Match Filtered data')
