@@ -5,11 +5,11 @@ clear
 %% Inputs
 % Rx parameters
 f_s = 40e6;            % Sampling frequency [Hz]
-T   = 1e-4;           % Record Time [s];
+T   = 5e-5;           % Record Time [s];
 t = 0:1/f_s:T;        % Time vector [s]
 L = length(t);        % Recording vector length [ ]
 % Tx parameters
-f_0 = 20e6;           % Intial frequency of chirp [Hz] 
+f_0 = 00e6;           % Intial frequency of chirp [Hz] 
 swp = 40e6;           % BW of chirp [Hz]
 f_c = f_0 + swp/2;    % Center frequency [Hz]
            
@@ -18,7 +18,8 @@ t_c = 1e-5;           % Chirp Length [s]
 c = 3e8/1.31;
 lambda_c = c/f_c;% Wavelength in ice [m]
 n = 1001; 			  %surface sample points
-dx = 800/1001;  	  % Distance between sample points [m]
+dx = 400/1001;  	  % Distance between sample points [m]
+SynthAx = n*dx;       % Synthetic Apeture [m]
 xx = (([1:n]*dx)-(n+1)/2*dx)';
 depth = 4e3;          % Scatter Depth [m]
 % Plotting params
@@ -39,8 +40,8 @@ R = zeros(n,1);
 for i = 1:n
     %Find range, shift chirp (in Time and Fx)
     r1 = sqrt((depth).^2 + ((i-500)*dx).^2);
-    r2 = sqrt((depth+1e2).^2 + ((i-250)*dx).^2);
-    y_tmp = chirpOut(X,t,r1,0,f_c,f_s) + chirpOut(X,t,r2,0,f_c,f_s);
+%     r2 = sqrt((depth+1e2).^2 + ((i-250)*dx).^2);
+    y_tmp = chirpOut(X,t,r1,0,f_c,f_s); % + chirpOut(X,t,r2,0,f_c,f_s);
     
     %raw data
     Y(i,:) = y_tmp; 
@@ -67,19 +68,19 @@ end
 figure(1) %Faster plotting option, but can't see waves
 clf
 subplot(311)
-	imagesc(real(Y(:,i_min:i_max)'))
+	prettyPlot(real(Y(:,i_min:i_max)'))
 	ylabel('range')
 	xlabel('along track')
 	title('Raw data')
 	colorbar
 subplot(312)
-	imagesc(abs(Ymf(:,i_min:i_max)'))
+	prettyPlot(abs(Ymf(:,i_min:i_max)'))
 	ylabel('range')
 	xlabel('along track')
 	title('Match Filtered data')
 	colorbar
 subplot(313)
-    imagesc(abs(Ymfaz(:,i_min:i_max)'))
+    prettyPlot(abs(Ymfaz(:,i_min:i_max)'))
     colorbar
     ylabel('range')
     xlabel('along track')
