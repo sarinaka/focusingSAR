@@ -51,6 +51,7 @@ for i = 1:n
     Ymf(i,:) = ifft( fft(y_tmp)  .* conj( fft(X) ) );
     clear r y_tmp
 end
+
 clear i
 
 %% Azimuth Processing
@@ -58,7 +59,7 @@ Ymfaz = zeros(n,i_range*2+1);
 %shift in reflector to our domain
 w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
 for j = 1:L
-    rr = 2 * sqrt(xx.^2 + ((i_min-1+j)*(1/f_s)*c/2)^2);
+    rr = 2 * sqrt(xx.^2 + ((j)*(1/f_s)*c/2)^2);
     z = Ymf(:,j);
     az = exp(1i.*(2.*pi*2*rr./lambda_c));
     Ymfaz(:,j) = ifft( fft(z)  .* conj( fft(az) ) .* w);
