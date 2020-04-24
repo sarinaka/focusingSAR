@@ -6,15 +6,15 @@ c = 3e8/1.31;
 
 %% Phase delay
 lambda_c = c/f_c;
-delay = 2*r/c;
+delay = 2*4e3/c;
 %% Attenuation
 amp = 1; 
 % amp = exp(-r/1e7);
 
 %% Noise, if you want it
-SNR = 100;
-% noise = randn(size(X)).*exp(1i*rand(size(X))*2*pi); %Rand amp (normal), rand phase (uniform)
-noise = zeros(size(X));  %b/c dividing by 0 is hard, use this for 0 noise
+SNR = 10;
+noise = randn(size(X)).*exp(1i*rand(size(X))*2*pi); %Rand amp (normal), rand phase (uniform)
+% noise = zeros(size(X));  %b/c dividing by 0 is hard, use this for 0 noise
 %% Shift in space, apply phase and attenuation
 %FFT range  shift
 N = length(X);
@@ -26,6 +26,6 @@ if mod(N, 2) == 0
 	% corresponding negative frequency to cancel out its imaginary part.
 	w(N/2+1) = real(w(N/2+1));
 end 
-Y = ifft(x .* w) * exp(1i*(2*pi*2*r/lambda_c)) + noise./SNR;
-% Interpolation range shift
-% Y = amp*interp1(t,X,t-delay,'pchip',0).*exp(1i.*(2.*pi*r./lambda_c)) + noise./SNR;
+Y = ifft(x .* w) *...                   % ifft range shift
+    exp(1i*(2*pi*2*r/lambda_c)) + ...   % phase delay
+    noise./SNR;                         % noise
