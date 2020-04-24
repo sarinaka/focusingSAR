@@ -4,19 +4,20 @@
 clear
 %% Inputs
 % Rx parameters
-f_s = 40e6;            % Sampling frequency [Hz]
+f_s = 100e6;            % Sampling frequency [Hz]
 T   = 5e-5;           % Record Time [s];
 t = 0:1/f_s:T;        % Time vector [s]
 L = length(t);        % Recording vector length [ ]
 % Tx parameters
-f_0 = 00e6;           % Intial frequency of chirp [Hz] 
-swp = 40e6;           % BW of chirp [Hz]
+f_0 = 50e6;           % Intial frequency of chirp [Hz] 
+swp = 50e6;           % BW of chirp [Hz]
 f_c = f_0 + swp/2;    % Center frequency [Hz]
            
 t_c = 1e-5;           % Chirp Length [s]
 % Survey Parameters
 c = 3e8/1.31;
 lambda_c = c/f_c;% Wavelength in ice [m]
+lambda_0 = c/f_0;
 n = 1001; 			  %surface sample points
 dx = 400/1001;  	  % Distance between sample points [m]
 SynthAx = n*dx;       % Synthetic Apeture [m]
@@ -51,8 +52,14 @@ for i = 1:n
     Ymf(i,:) = ifft( fft(y_tmp)  .* conj( fft(X) ) );
     clear r y_tmp
 end
-
 clear i
+tic
+for i = 1:n
+    % match filter in range, this could be done in a separate processing
+    % loop if we wanted, indepentent to data collection
+    Ymf(i,:) = ifft( fft(Y(i,:))  .* conj( fft(X) ) );
+    clear r y_tmp
+end
 
 %% Azimuth Processing
 Ymfaz = zeros(n,i_range*2+1);
@@ -65,6 +72,10 @@ for j = 1:L
     Ymfaz(:,j) = ifft( fft(z)  .* conj( fft(az) ) .* w);
 end
 
+toc
+
+I = processBlock(Y,X,f_s,f_c,dx);
+
 %% Plot the returns, abs() of complex values to display
 figure(1) %Faster plotting option, but can't see waves
 clf
@@ -75,7 +86,7 @@ subplot(311)
 	title('Raw data')
 	colorbar
 subplot(312)
-	prettyPlot(abs(Ymf(:,i_min:i_max)'))
+	prettyPlot(abs(I(:,i_min:i_max)'))
 	ylabel('range')
 	xlabel('along track')
 	title('Match Filtered data')
@@ -108,33 +119,36 @@ subplot(313)
 
 %% Azimuth Focusing play area
 
-% figure(3)
+figure(3)
+clf
+subplot(311)
+plot(real(Y(:,delay_index)))
+title('azimuth real data at reflector')
+
+% figure(4)
 % clf
-% subplot(311)
-% plot(real(Y(:,delay_index)))
-% title('azimuth real data at reflector')
+% plot((R-depth)/lambda_c)
+% title('Range change in units of wavelength')
 % 
-% % figure(4)
-% % clf
-% % plot((R-depth)/lambda_c)
-% % title('Range change in units of wavelength')
-% % 
-% subplot(312)
-% rr = 2 * sqrt(xx.^2 + depth^2);
-% plot(real(exp(1i.*(2.*pi*2*(rr)./lambda_c))))
-% title('expected phase shift')
-% 
-% 
-% z = Ymf(:,delay_index);
-% az = exp(1i.*(2.*pi*2*rr./lambda_c));
-% w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
-% 
-% if mod(n, 2) == 0
-% 	% Force conjugate symmetry. Otherwise this frequency component has no
-% 	% corresponding negative frequency to cancel out its imaginary part.
-% 	w(n/2+1) = real(w(n/2+1));
-% end 
-% Zmf = ifft( fft(z)  .* conj( fft(az) ) .* w);
-% % Zmf = conv(z,az);
-% subplot(313)
-% plot(abs(Zmf))
+
+z = Ymf(:,delay_index);
+az = exp(1i.*(2.*pi*2*rr./lambda_c));
+w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
+
+subplot(312)
+rr = 2 * sqrt(xx.^2 + depth^2);
+plot(real(az))
+title('expected phase shift')
+
+
+
+
+if mod(n, 2) == 0
+	% Force conjugate symmetry. Otherwise this frequency component has no
+	% corresponding negative frequency to cancel out its imaginary part.
+	w(n/2+1) = real(w(n/2+1));
+end 
+Zmf = ifft( fft(z)  .* conj( fft(az) ) .* w);
+% Zmf = conv(z,az);
+subplot(313)
+plot(abs(Zmf))
