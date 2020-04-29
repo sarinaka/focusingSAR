@@ -66,15 +66,15 @@ Ymfaz = zeros(n,i_range*2+1);
 %shift in reflector to our domain
 w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
 for j = 1:L
-    rr = 2 * sqrt(xx.^2 + ((j)*(1/f_s)*c/2)^2);
+    rr = sqrt(xx.^2 + ((j)*(1/f_s)*c/2)^2);
     z = Ymf(:,j);
-    az = exp(1i.*(2.*pi*2*rr./lambda_0));
+    az = exp(1i.*(2.*pi*(2*rr)./lambda_c));
     Ymfaz(:,j) = ifft( fft(z)  .* conj( fft(az) ) .* w);
 end
 
 toc
 
-I = processBlock(Y,X,f_s,f_0,dx); %Processing Az with initial freq (not center) works way better
+I = processBlock(Y,X,f_s,f_c,dx); %Processing Az with initial freq (not center) works way better
 
 %% Plot the returns, abs() of complex values to display
 figure(1) %Faster plotting option, but can't see waves
