@@ -64,7 +64,7 @@ end
 
 [x,y] = ndgrid(xx,t*c/2);
 Rshift = griddedInterpolant(x,y,Ymf);
-Ymfsh = Rshift(x,t*c/2+x.^2./(2*t*c/2));
+Ymfsh = Rshift(x,t*c/2+x.^2./(2*t*c/2)); %This is approx, depth >> x displacement
 
 
 
