@@ -49,16 +49,13 @@ r2 =  sqrt(125.^2 + (x).^2);
 y = (1:dy:200);
 y_sub = y(1:end-round(20/dy));
 z = exp(-(y'-r1).^2) +  exp(-(y'-r2).^2);
-z_shift = zeros(200,1001);
+
 tic
 [yy,xx] = ndgrid(y,x);
 lookup = griddedInterpolant(yy,xx,z);
-for i = 1:length(y)
-    for j = 1:length(x)
-        z_shift(i,j) = lookup(y(i)+x(j).^2/(2*y(i)),x(j));
-    end
-end
+z_shift = lookup(y'+x.^2./(2*y'),xx);
 toc
+
 figure(3)
 subplot(211)
 prettyPlot(z)
