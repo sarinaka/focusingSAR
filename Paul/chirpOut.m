@@ -12,7 +12,7 @@ amp = 1;
 % amp = exp(-r/1e7);
 
 %% Noise, if you want it
-SNR = 10;
+SNR = 3;
 % noise = randn(size(X)).*exp(1i*rand(size(X))*2*pi); %Rand amp (normal), rand phase (uniform)
 noise = zeros(size(X));  %b/c dividing by 0 is hard, use this for 0 noise
 %% Shift in space, apply phase and attenuation
@@ -27,5 +27,5 @@ if mod(N, 2) == 0
 	w(N/2+1) = real(w(N/2+1));
 end 
 Y = ifft(x .* w) *...                   % ifft range shift
-    exp(1i*(2*pi*2*r/lambda_c)) + ...   % phase delay
+    exp(1i*(2*pi*(2*r)/lambda_c)) + ...   % phase delay
     noise./SNR;                         % noise
