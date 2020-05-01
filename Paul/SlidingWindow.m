@@ -2,34 +2,35 @@
 % between chirps to make a scene. Produces both raw data and match filtered
 % data products
 clear
+
 %% Inputs
+c = 3e8/1.79;         % Speed of light in ice [m/s]
 % Rx parameters
-f_s = 60e6;          % Sampling frequency [Hz]
-T   = 15e-5;           % Record Time [s];
+f_s = 60e6;           % Sampling frequency [Hz]
+T   = 10e-5;           % Record Time [s]
 t = 0:1/f_s:T;        % Time vector [s]
 L = length(t);        % Recording vector length [ ]
 % Tx parameters
-f_c = 40e6;           % Center frequency of chirp [Hz] 
-BW = 20e6;           % BW of chirp [Hz]
-f_0 = f_c - BW/2;    % Intial frequency [Hz]           
-t_c = 10e-5;           % Chirp Length [s]
-% Survey Parameters
-c = 3e8/1.31;
-lambda_c = c/f_c;     % Wavelength (center) in ice [m]
-lambda_0 = c/f_0;     % Wavelength (initial) in ice [m]
-n = 251; 			  % surface sample points
-dx = 5;  	          % Distance between sample points [m]
-xx = (((1:n)*dx)-(n+1)/2*dx)';
+f_c = 10e6;           % Center frequency of chirp [Hz] 
+BW = 20e6;            % BW of chirp [Hz]
+f_0 = f_c - BW/2;     % Intial frequency [Hz]           
+t_c = 5e-5;           % Chirp Length [s]
+% Survey parameters
 depth = 4e3;          % Scatter Depth [m]
+theta = pi/12;        % beam half width [rad]
+surveyVelocity = 10;    % Velocity of platform [m/s](still assuming point and shoot)
+PRF = 2;               % pulse repitition frequency [Hz]
+SynAp = 2*tan(theta)*depth; %distance scatter is visible
+% Synthetic data parameters
+dx = surveyVelocity/PRF; % Dist between sample points [m]
+n = floor(SynAp/dx/2)*2+1; 	 % Surface sample points (must be odd) 	         
+xx = (((1:n)*dx)-(n+1)/2*dx)'; % sample points
 % Focusing Parameters
-ap = 51;              % Apeture width in Az bins
-window = 5;           % Window width in Az bins
-
-% Plotting params
-delay_index = round(depth*2/c*f_s);
-i_range = 100;
-i_min = delay_index-i_range;
-i_max = delay_index+i_range;
+ap = n;              % Apeture width in Az bins
+window = n;          % Window width in Az bins
+step = 1;            % Skip focusing windows to get a view  
+% Plotting parameters
+delay_time = 2*depth/c;
 
 %% Make pulse
 t_sub = 0:1/f_s:t_c; %pulse only for duration of pulse
@@ -43,70 +44,74 @@ R = zeros(n,1);
 for i = 1:n
     %Find range, shift chirp (in Time and Fx)
     r1 = sqrt((depth).^2 + ((i-(n+1)/2)*dx).^2);
-    r2 = sqrt((depth+4e1).^2 + ((i-(n+1)/(2.5))*dx).^2);
-    y_tmp = chirpOut(X,t,r1,0,f_c,f_s) + chirpOut(X,t,r2,0,f_c,f_s);
+%     r2 = sqrt((depth+4e1).^2 + ((i-(n+1)/(2.5))*dx).^2);
+    y_tmp = chirpOut(X,t,r1,0,f_c,f_s);% + chirpOut(X,t,r2,0,f_c,f_s);
     
     %raw data
-    Y(i,:) = y_tmp; 
-    Ysd(i,:) = y_tmp.*X;
+    Y(i,:) = y_tmp;
     clear r y_tmp
 end
 clear i
 
 tic
 
+Imf = zeros(size(Y));
+Ish = zeros(size(Y));
 I = zeros(size(Y));
-Isd = zeros(size(Y));
-for i = 1:1:((n-ap)+1)
-    tmp = processBlock(Y(i:(ap+i-1),:),X,f_s,f_c,dx,t)./window; %Processing Az with initial freq (not center) works way better
+for i = 1:step:((n-ap)+1)
+    [tmf,tmfsh,tmfshaz] = processBlock(Y(i:(ap+i-1),:),X,f_s,f_c,dx,t); 
+    Imf(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) = ...
+        Imf(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) + tmf((ap-window)/2+1:end-(ap-window)/2,:);
+    Ish(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) = ...
+        Ish(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) + tmfsh((ap-window)/2+1:end-(ap-window)/2,:);
     I(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) = ...
-        I(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) + tmp((ap-window)/2+1:end-(ap-window)/2,:);
-    tmp = processBlock(Ysd(i:(ap+i-1),:),X,f_s,f_c,dx,t)./window; %Processing Az with initial freq (not center) works way better
-    Isd(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) = ...
-        Isd(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) + tmp((ap-window)/2+1:end-(ap-window)/2,:);
+        I(((ap-window)/2+i):(ap+i-1-(ap-window)/2),:) + tmfshaz((ap-window)/2+1:end-(ap-window)/2,:);
 end
 toc
 %% Plot the returns, abs() of complex values to display
 figure(1)
+set(gcf,'Position',[100 100 600 1200])
 clf
-subplot(221)
-	prettyPlot(real(Y'))
+subplot(411)
+	prettyPlot(xx,t,real(Y'))
 	ylabel('range')
 	xlabel('along track')
 	title('Raw data')
 	colorbar
-subplot(223)
-    prettyPlot(abs(I(:,i_min:i_max)'))
+subplot(412)
+    prettyPlot(xx,t,abs(Imf'))
+    ylim([delay_time-.1e-5 delay_time+.1e-5])
+    colorbar
+    ylabel('range')
+    xlabel('along track')
+    title('Match Filter Data')
+subplot(413)
+    prettyPlot(xx,t,abs(Ish'))
+    ylim([delay_time-.1e-5 delay_time+.1e-5])
+    colorbar
+    ylabel('range')
+    xlabel('along track')
+    title('Range Shifted Data')
+subplot(414)
+    prettyPlot(xx,t,abs(I'))
+    ylim([delay_time-.1e-5 delay_time+.1e-5])
     colorbar
     ylabel('range')
     xlabel('along track')
     title('Full Focused Data')
-subplot(222)
-	prettyPlot(real(Ysd'))
-	ylabel('range')
-	xlabel('along track')
-	title('Raw data')
-	colorbar
-subplot(224)
-    prettyPlot(abs(Isd(:,i_min:i_max)'))
-    colorbar
-    ylabel('range')
-    xlabel('along track')
-    title('Full Focused Data')
-    
+sgtitle("F_s = " + f_s/1e6 + " MHz, F_c = " + f_c/1e6 + " MHz, BW = " + BW/1e6 + " MHz")    
 disp("SNR is " + round(10*log10(max(max(abs(I)))/mean(mean(abs(I)),'omitnan')),2) + "dB");
     
-% figure(2)
-% clf
-% subplot(211)
-%     plot(t,real(X)/max(abs(X)))
-%     hold on
-%     plot(t,real(Y((n+1)/2,:))/max(abs(Y((n+1)/2,:))))
-%     legend('Chirp', 'Raw data')
-% subplot(212)
-%     plot(t,abs(I((n+1)/2,:))/max(abs(I((n+1)/2,:))))
-%     hold on
-%     plot(t,real(X.*Y((n+1)/2,:)));
-%     legend('Focused','Stepped Down')
-%     sgtitle('Center point fast time down')
-
+figure(2)
+clf
+subplot(211)
+    plot(t,real(X))
+    hold on
+    plot(t,real(Y((n+1)/2,:)))
+    legend('Chirp', 'Raw data')
+subplot(212)
+    plot(t,abs(I((n+1)/2,:))/max(abs(I((n+1)/2,:))))
+    hold on
+    plot(t,real(X.*Y((n+1)/2,:)));
+    legend('Focused','Stepped Down')
+    sgtitle('Center point fast time down')
