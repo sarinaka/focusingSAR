@@ -1,6 +1,7 @@
-% This is a script to make n chirps from stationary platform, while moving 
+% This is a script to make and process n chirps from stationary platform, while moving 
 % between chirps to make a scene. Produces both raw data and match filtered
-% data products
+% data products. The scene is focused with a sliding window that is the
+% synthetic apeture, which is less than the total survey length.
 clear
 
 %% Inputs
