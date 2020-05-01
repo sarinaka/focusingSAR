@@ -2,14 +2,14 @@ function [Y] = chirpOut(X,t,r,theta,f_c,f_s)
 % [Y] = chirpOut(X,t,r,theta,f_c) Returns the raw (Y) data
 % from an input chirp (X,t,f_c,f_s) off a point scattered range (r) away at angle
 % (theta). Chirp (X), time vector(t), center freq (f_c), Sample freq (f_s)
-c = 3e8/1.31;
+c = 3e8/1.79;
 
 %% Phase delay
 lambda_c = c/f_c;
 delay = 2*r/c;
 %% Attenuation
-amp = 1; 
-% amp = exp(-r/1e7);
+% amp = 1;
+amp = exp(-r*.2/1e3);
 
 %% Noise, if you want it
 SNR = 3;
@@ -26,6 +26,16 @@ if mod(N, 2) == 0
 	% corresponding negative frequency to cancel out its imaginary part.
 	w(N/2+1) = real(w(N/2+1));
 end 
-Y = ifft(x .* w) *...                   % ifft range shift
+ Y = amp * ...         %decay signal
+     ifft(x .* w) *...                   % ifft range shift
     exp(1i*(2*pi*(2*r)/lambda_c)) + ...   % phase delay
     noise./SNR;                         % noise
+
+%% Interp signal forward as option
+% Rshift = griddedInterpolant(t,X,'cubic','none');
+% % Interpolate signal back up
+% Y = Rshift(t-delay) * ... %inter range shift
+%     exp(1i*(2*pi*(2*r)/lambda_c)) + ...   % phase delay
+%     noise./SNR; % noise
+% 
+% Y(isnan(Y))=0;
