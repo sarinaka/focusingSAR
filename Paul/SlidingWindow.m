@@ -20,18 +20,20 @@ depth = 4e3;          % Scatter Depth [m]
 theta = pi/12;        % beam half width [rad]
 surveyVelocity = 10;    % Velocity of platform [m/s](still assuming point and shoot)
 PRF = 2;               % pulse repitition frequency [Hz]
-SynAp = 2*tan(theta)*depth; %distance scatter is visible
+f_zone = 2*tan(theta)*depth; %distance scatter is visible
 % Synthetic data parameters
 dx = surveyVelocity/PRF; % Dist between sample points [m]
-n = floor(SynAp/dx/2)*2+1; 	 % Surface sample points (must be odd) 	         
+n = floor(f_zone/dx/2)*2+1; 	 % Surface sample points (must be odd) 	         
 xx = (((1:n)*dx)-(n+1)/2*dx)'; % sample points
 % Focusing Parameters
-ap = n;              % Apeture width in Az bins
-window = n;          % Window width in Az bins
-step = 1;            % Skip focusing windows to get a view  
+SynAp = 400;                 % Apeture width [m]
+ap = floor(SynAp/dx/2)*2+1;  % Apeture width in Az bins (must be odd)
+window = ap;                 % Window width in Az bins
+step = 1;                    % stepping size for plotting processed looks 
 % Plotting parameters
 delay_time = 2*depth/c;
 
+disp(round(f_zone/1e3,2) + "km survey with " + n + " samples");
 %% Make pulse
 t_sub = 0:1/f_s:t_c; %pulse only for duration of pulse
 X = zeros(size(t));  %pulse signal is 0 otherwise
