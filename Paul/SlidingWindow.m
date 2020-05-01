@@ -1,7 +1,7 @@
 % This is a script to make and process n chirps from stationary platform, while moving 
 % between chirps to make a scene. Produces both raw data and match filtered
 % data products. The scene is focused with a sliding window that is the
-% synthetic apeture, which is less than the total survey length.
+% synthetic aperture, which is less than the total survey length.
 clear
 
 %% Inputs
@@ -14,21 +14,21 @@ L = length(t);        % Recording vector length [ ]
 % Tx parameters
 f_c = 10e6;           % Center frequency of chirp [Hz] 
 BW = 20e6;            % BW of chirp [Hz]
-f_0 = f_c - BW/2;     % Intial frequency [Hz]           
+f_0 = f_c - BW/2;     % Initial frequency [Hz]           
 t_c = 5e-5;           % Chirp Length [s]
 % Survey parameters
 depth = 4e3;          % Scatter Depth [m]
 theta = pi/12;        % beam half width [rad]
 surveyVelocity = 10;    % Velocity of platform [m/s](still assuming point and shoot)
-PRF = 2;               % pulse repitition frequency [Hz]
+PRF = 2;               % pulse repetition frequency [Hz]
 f_zone = 2*tan(theta)*depth; %distance scatter is visible
 % Synthetic data parameters
 dx = surveyVelocity/PRF; % Dist between sample points [m]
 n = floor(f_zone/dx/2)*2+1; 	 % Surface sample points (must be odd) 	         
 xx = (((1:n)*dx)-(n+1)/2*dx)'; % sample points
 % Focusing Parameters
-SynAp = 400;                 % Apeture width [m]
-ap = floor(SynAp/dx/2)*2+1;  % Apeture width in Az bins (must be odd)
+SynAp = 400;                 % Aperture width [m]
+ap = floor(SynAp/dx/2)*2+1;  % Aperture width in Az bins (must be odd)
 window = ap;                 % Window width in Az bins
 step = 1;                    % stepping size for plotting processed looks 
 % Plotting parameters
@@ -42,7 +42,7 @@ X(1:length(t_sub)) = exp(1i*(pi.*(BW/t_c).*t_sub.^2+2.*pi.*f_0.*t_sub)); %LFMCM 
 
 %% Sweep along surface, let full pulse out and wait for return, then move.
 Y = zeros(n,L); %initialize raw data field
-Ysd = Y;        %initialize stepdown data field
+Ysd = Y;        %initialize step down data field
 R = zeros(n,1);
 for i = 1:n
     %Find range, shift chirp (in Time and Fx)

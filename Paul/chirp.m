@@ -6,7 +6,7 @@ T   = 1e-3;              %Record Time [s];
 t = 0:1/f_s:T;       % Time vector [s]
 L = length(t);      % Recording length [ ]
 % Tx
-f_c = 1e5;            % Intial frequency of chirp [Hz] 
+f_c = 1e5;            % Initial frequency of chirp [Hz] 
 swp = 2e6/T;           % Sweep frequency of chirp [Hz/s]
 t_c = 1/f_c*10;        % Chirp Length [s]
 % Scatterer

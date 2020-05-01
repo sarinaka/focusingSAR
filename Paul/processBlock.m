@@ -9,7 +9,7 @@ varargout = cell(1,nOutputs);
 c = 3e8/1.79; %speed of light in ice
 n = size(Y,1); %Width
 L = size(Y,2); %Time recording length
-xx = (((1:n)*dx)-(n+1)/2*dx)'; %lenth vector in azimuth
+xx = (((1:n)*dx)-(n+1)/2*dx)'; %length vector in azimuth
 lambda_c = c/f_c; %Wavelength of center freq of chirp
 
 %% Match filter in fast time
@@ -20,7 +20,7 @@ end
 
 %% Need to shift into correct range bin (optimized for point scatterer)
 % Create interpolant to migrate hyperbolas back to same range bin, this
-% only works well for scatterers in center of block and Depth >> Apeture
+% only works well for scatterers in center of block and Depth >> Aperture
 [x,y] = ndgrid(xx,t*c/2);
 Rshift = griddedInterpolant(x,y,Imf,'cubic','none');
 % Interpolate signal back up

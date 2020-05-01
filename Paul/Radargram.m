@@ -4,12 +4,12 @@
 clear
 %% Inputs
 % Rx parameters
-f_s = 60e6;          % Sampling frequency [Hz]
+f_s = 60e6;           % Sampling frequency [Hz]
 T   = 5e-5;           % Record Time [s];
 t = 0:1/f_s:T;        % Time vector [s]
 L = length(t);        % Recording vector length [ ]
 % Tx parameters
-f_0 = 20e6;           % Intial frequency of chirp [Hz] 
+f_0 = 20e6;           % Initial frequency of chirp [Hz] 
 swp = 40e6;           % BW of chirp [Hz]
 f_c = f_0 + swp/2;    % Center frequency [Hz]
            
@@ -21,10 +21,10 @@ lambda_0 = c/f_0;     % Wavelength (initial) in ice [m]
 n = 1001; 			  % surface sample points
 dx = 800/1001;  	  % Distance between sample points [m]
 dy = (1/f_s)*c/2;     % Distance of 1 way dist per range bin [m]
-SynthAx = n*dx;       % Synthetic Apeture [m]
+SynthAx = n*dx;       % Synthetic Aperture [m]
 xx = (([1:n]*dx)-(n+1)/2*dx)';
 depth = 4e3;          % Scatter Depth [m]
-% Plotting params
+% Plotting parameters
 delay_index = round(depth*2/c*f_s);
 i_range = 100;
 i_min = delay_index-i_range;
@@ -40,7 +40,7 @@ Y = zeros(n,L); %initialize raw data field
 Ymf = Y;        %initialize match filtered data field
 R = zeros(n,1);
 for i = 1:n
-    %Find range, shift chirp (in Time and Fx)
+    %Find range, shift chirp (in Time and Frequency)
     r1 = sqrt((depth).^2 + ((i-500)*dx).^2);
     r2 = sqrt((depth+4e1).^2 + ((i-450)*dx).^2);
     y_tmp = chirpOut(X,t,r1,0,f_c,f_s) + chirpOut(X,t,r2,0,f_c,f_s);
@@ -49,7 +49,7 @@ for i = 1:n
     Y(i,:) = y_tmp; 
     
     % match filter in range, this could be done in a separate processing
-    % loop if we wanted, indepentent to data collection
+    % loop if we wanted, independent to data collection
     Ymf(i,:) = ifft( fft(y_tmp)  .* conj( fft(X) ) );
     clear r y_tmp
 end
@@ -57,7 +57,7 @@ clear i
 tic
 for i = 1:n
     % match filter in range, this could be done in a separate processing
-    % loop if we wanted, indepentent to data collection
+    % loop if we wanted, independent to data collection
     Ymf(i,:) = ifft( fft(Y(i,:))  .* conj( fft(X) ) );
     clear r y_tmp
 end
