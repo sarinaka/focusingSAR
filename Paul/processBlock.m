@@ -6,7 +6,7 @@ function [varargout] = processBlock(Y,X,f_s,f_c,dx,t)
 nOutputs = nargout;
 varargout = cell(1,nOutputs);
 
-c = 3e8/1.31; %speed of light in ice
+c = 3e8/1.79; %speed of light in ice
 n = size(Y,1); %Width
 L = size(Y,2); %Time recording length
 xx = (((1:n)*dx)-(n+1)/2*dx)'; %lenth vector in azimuth
@@ -22,12 +22,13 @@ end
 % Create interpolant to migrate hyperbolas back to same range bin, this
 % only works well for scatterers in center of block and Depth >> Apeture
 [x,y] = ndgrid(xx,t*c/2);
-Rshift = griddedInterpolant(x,y,Imf,'cubic','nearest');
+Rshift = griddedInterpolant(x,y,Imf,'cubic','none');
 % Interpolate signal back up
-Imf = Rshift(x,t*c/2+x.^2./(2*t*c/2));
+Imf = Rshift(x,sqrt((t*c/2).^2 + x.^2)); %exact
 if(nOutputs == 3)
     varargout{2} = Imf;
 end
+
 %% Match filter in Az (optimized for point scatterer)
 % Generate shift to center of frame
 w = exp(-1i * 2 * pi * (n-1)/2 * [0:floor(n/2)-1 floor(-n/2):-1]'/ n); 
