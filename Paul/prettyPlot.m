@@ -6,14 +6,14 @@ colormap(flipud(gray))
     if(nargin == 1)
         X = flipud(varargin{1});
         h = pcolor(X);
-      h.FaceColor = 'interp';
+%       h.FaceColor = 'interp';
         h.EdgeColor = 'none';
     else if(nargin == 3)
         X = flipud(varargin{3});
         y = flip(varargin{2});
 %         y = (varargin{2});
         h = pcolor(varargin{1},y,X);
-        h.FaceColor = 'interp';
+%         h.FaceColor = 'interp';
         h.EdgeColor = 'none';
     end
 set(gca, 'YDir','reverse')
