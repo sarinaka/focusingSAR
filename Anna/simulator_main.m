@@ -18,16 +18,16 @@ fs = 20e6; % Hz
 vel_radar = 10; % m/s, radar platform velocity
 d_target = 3000; % m, target depth
 alpha = 20; % dB/km, attenuation rate
-alpha = alpha / 1000; % linear/m 
+alpha = alpha / 1000; % linear/m
 
 npts = 1000; % number of time steps in the simulation
 theta_hbw = 30; % degrees, antenna 1/2 beamwidth angle
 theta_hbw = theta_hbw * pi / 180;
-sigma_noise = 0.1; 
+sigma_noise = 0.1;
 
 c = 3e8; % m/s
 
-eps_ice = 3.17; 
+eps_ice = 3.17;
 eps_bed = 80; % water
 vel_ice = c / sqrt(eps_ice); % speed of wave in ice
 
@@ -47,7 +47,7 @@ r_target = sqrt(x_radar.^2 + d_target^2); % range from radar to target, function
 
 figure; plot(t_illum, r_target); xlabel('Time (s)'); ylabel('Distance (m)'); title('Range to Target')
 
-%% make the reference chirp 
+%% make the reference chirp
 N = 2^(ceil(log2(fs * tau_range))); % make reference chirp power of 2 in length for faster fft
 N = N*2;
 reference_chirp = makeChirp(slope_range, tau_range, fs, fc, N, 0);
@@ -84,7 +84,7 @@ rx_signal = rx_signal + makeChirp(slope_range, tau_range, fs, fc, N, 0); % add s
 rx_signal = rx_signal + sigma_noise * rand(size(rx_signal));
 
 % vector that stores the attenuation in linear units to each range (kind of
-% sketchy implemenation 
+% sketchy implemenation
 attenuation = 10^(-25/20); % 25 dB/km attenuation, not sure whether it should be - or +
 
 % apply attenuation
@@ -94,7 +94,7 @@ rx_signal_ft = fft(rx_signal);
 pc_signal_ft = rx_signal_ft .* conj(reference_ft); % pulse compress signal
 pc_signal = ifft(pc_signal_ft);
 
-t_pc = linspace(-tau_range/2, tau_range/2, length(reference_chirp)); 
+t_pc = linspace(-tau_range/2, tau_range/2, length(reference_chirp));
 
 figure
 subplot(2,1,1)
@@ -111,3 +111,40 @@ plot(t_pc*1e6, 20*log10(abs(ifftshift(pc_signal))))
 xlabel('Time (\mus)')
 ylabel('Power (dB)')
 title('Pulse Compressed Signal')
+
+%% now create a record of the chirp for all range points
+
+ % vector that stores the attenuation in linear units to each range (kind of
+ % sketchy implemenation
+ attenuation = 10^(-25/20); % 25 dB/km attenuation, not sure whether it should be - or +
+
+% start with the dumb way of doing it--loop through all range bins and
+% stack results in matrix (there's smarter way to do it with vectorization I'm
+% sure)
+rx_full_pc = zeros(N, length(r_target));
+for ii = 1:length(r_target)
+    rx_sig = makeChirp(slope_range, tau_range, fs, fc, N, r_target(ii));
+    rx_sig = rx_sig + makeChirp(slope_range, tau_range, fs, fc, N, 0); % add surface reflection
+    
+    % add noise
+    rx_sig = rx_sig + sigma_noise * rand(size(rx_sig));
+    
+    % apply attenuation
+    rx_sig = rx_sig * exp(-2 * attenuation / 1000 * r_target(ii));
+    
+    % pulse compress
+    rx_sig_ft = fft(rx_sig);
+    pc_sig_ft = rx_sig_ft .* conj(reference_ft); % pulse compress signal
+    pc_sig = ifft(pc_sig_ft);
+    
+    % add to data array
+    rx_full_pc(:,ii) = pc_sig; 
+end
+
+% display fake range compressed radargram
+figure
+imagesc(x_radar, t_pc*vel_ice/2, 20*log10(abs(ifftshift(rx_full_pc,1))))
+xlabel('Along Track Distance Relative to Scatterer (m)')
+ylabel('Depth (m)')
+c = colorbar;
+c.Label.String = 'Power (dB)';
