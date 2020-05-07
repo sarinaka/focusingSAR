@@ -78,18 +78,14 @@ ylabel('Power (dB)')
 % calculate delay based on range vector
 %delay = 2 * r_target / vel_ice; % two way travel time in ice
 rx_signal = makeChirp(slope_range, tau_range, fs, fc, N, min(r_target));
-%rx_signal = rx_signal + makeChirp(slope_range, tau_range, fs, fc, N, 0); % add surface reflection
+rx_signal = rx_signal + makeChirp(slope_range, tau_range, fs, fc, N, 0); % add surface reflection
 
 % add noise
 rx_signal = rx_signal + sigma_noise * rand(size(rx_signal));
 
-% THIS ATTENUATION IMPLEMENTATION IS WRONG: I NEED TO DO WHAT RILEY
-% SUGGESTED I THINK AND ADD ATTENUATION TO EACH POINT IN THE RETURNED
-% SAMPLE
-% vector that stores the attenuation in linear units to each range
-%attenuation = min(r_target) * alpha; % attenuation in dB
-%attenuation = 10^(attenuation/10); % attenuation in linear units
-attenuation = 10^(-25/20);
+% vector that stores the attenuation in linear units to each range (kind of
+% sketchy implemenation 
+attenuation = 10^(-25/20); % 25 dB/km attenuation, not sure whether it should be - or +
 
 % apply attenuation
 rx_signal = rx_signal * exp(-2 * attenuation / 1000 * min(r_target));
