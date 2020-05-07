@@ -23,7 +23,7 @@ alpha = alpha / 1000; % linear/m
 npts = 1000; % number of time steps in the simulation
 theta_hbw = 30; % degrees, antenna 1/2 beamwidth angle
 theta_hbw = theta_hbw * pi / 180;
-sigma_noise = 10; 
+sigma_noise = 0.1; 
 
 c = 3e8; % m/s
 
@@ -87,11 +87,12 @@ rx_signal = rx_signal + sigma_noise * rand(size(rx_signal));
 % SUGGESTED I THINK AND ADD ATTENUATION TO EACH POINT IN THE RETURNED
 % SAMPLE
 % vector that stores the attenuation in linear units to each range
-attenuation = min(r_target) * alpha; % attenuation in dB
-attenuation = 10^(attenuation/10); % attenuation in linear units
+%attenuation = min(r_target) * alpha; % attenuation in dB
+%attenuation = 10^(attenuation/10); % attenuation in linear units
+attenuation = 10^(-25/20);
 
 % apply attenuation
-rx_signal = rx_signal * exp(-2 * attenuation);
+rx_signal = rx_signal * exp(-2 * attenuation / 1000 * min(r_target));
 
 rx_signal_ft = fft(rx_signal);
 pc_signal_ft = rx_signal_ft .* conj(reference_ft); % pulse compress signal
@@ -112,5 +113,5 @@ legend('Transmitted Signal', 'Received Signal')
 subplot(2,1,2)
 plot(t_pc*1e6, 20*log10(abs(ifftshift(pc_signal))))
 xlabel('Time (\mus)')
-ylabel('Power (linear)')
+ylabel('Power (dB)')
 title('Pulse Compressed Signal')
