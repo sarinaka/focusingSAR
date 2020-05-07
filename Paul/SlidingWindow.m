@@ -27,7 +27,7 @@ dx = surveyVelocity/PRF; % Dist between sample points [m]
 n = floor(f_zone/dx/2)*2+1; 	 % Surface sample points (must be odd) 	         
 xx = (((1:n)*dx)-(n+1)/2*dx)'; % sample points
 % Focusing Parameters
-SynAp = 400;                 % Aperture width [m]
+SynAp = 800;                 % Aperture width [m]
 ap = floor(SynAp/dx/2)*2+1;  % Aperture width in Az bins (must be odd)
 window = ap;                 % Window width in Az bins
 step = 1;                    % stepping size for plotting processed looks 
@@ -46,7 +46,7 @@ Ysd = Y;        %initialize step down data field
 R = zeros(n,1);
 for i = 1:n
     %Find range, shift chirp (in Time and Fx)
-    r1 = sqrt((depth).^2 + ((i-(n+1)/2)*dx).^2);
+    r1 = sqrt((depth).^2 + ((i-(n+1)/4)*dx).^2);
 %     r2 = sqrt((depth+4e1).^2 + ((i-(n+1)/(2.5))*dx).^2);
     y_tmp = chirpOut(X,t,r1,0,f_c,f_s);% + chirpOut(X,t,r2,0,f_c,f_s);
     

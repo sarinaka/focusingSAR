@@ -8,8 +8,8 @@ c = 3e8/1.79;
 lambda_c = c/f_c;
 delay = 2*r/c;
 %% Attenuation
-amp = 1;
-% amp = exp(-r*2/1e3);
+% amp = 1;
+amp = exp(-r*2/1e3);
 
 %% Noise, if you want it
 SNR = 100; %noise ratio to emitted signal
