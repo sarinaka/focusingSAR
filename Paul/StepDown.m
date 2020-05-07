@@ -11,7 +11,7 @@ L = length(t);        % Recording vector length [ ]
 % Tx parameters
 f_c = 40e6;           % Center frequency of chirp [Hz] 
 BW = 10e6;           % BW of chirp [Hz]
-f_0 = f_c - BW/2;    % Intial frequency [Hz]           
+f_0 = f_c - BW/2;    % Initial frequency [Hz]           
 t_c = 10e-5;           % Chirp Length [s]
 % Survey Parameters
 c = 3e8/1.31;
@@ -22,7 +22,7 @@ dx = 5;  	          % Distance between sample points [m]
 xx = (((1:n)*dx)-(n+1)/2*dx)';
 depth = 1e3;          % Scatter Depth [m]
 % Focusing Parameters
-ap = 51;              % Apeture width in Az bins
+ap = 51;              % Aperture width in Az bins
 window = 5;           % Window width in Az bins
 
 % Plotting params

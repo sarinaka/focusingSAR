@@ -8,7 +8,7 @@ clear
 c = 3e8/1.79;         % Speed of light in ice [m/s]
 % Rx parameters
 f_s = 60e6;           % Sampling frequency [Hz]
-T   = 10e-5;           % Record Time [s]
+T   = 10e-5;          % Record Time [s]
 t = 0:1/f_s:T;        % Time vector [s]
 L = length(t);        % Recording vector length [ ]
 % Tx parameters
@@ -19,8 +19,8 @@ t_c = 5e-5;           % Chirp Length [s]
 % Survey parameters
 depth = 4e3;          % Scatter Depth [m]
 theta = pi/12;        % beam half width [rad]
-surveyVelocity = 10;    % Velocity of platform [m/s](still assuming point and shoot)
-PRF = 2;               % pulse repetition frequency [Hz]
+surveyVelocity = 10;  % Velocity of platform [m/s](still assuming point and shoot)
+PRF = 2;              % pulse repetition frequency [Hz]
 f_zone = 2*tan(theta)*depth; %distance scatter is visible
 % Synthetic data parameters
 dx = surveyVelocity/PRF; % Dist between sample points [m]
