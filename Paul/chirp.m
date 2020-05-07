@@ -1,26 +1,26 @@
 clear
 %% Inputs 
 % Rx
-f_s = 10e6;            % Sampling frequency [Hz]
-T   = 2e-4;              %Record Time [s];
+f_s = 20e5;            % Sampling frequency [Hz]
+T   = 2e-1;              %Record Time [s];
 t = 0:1/f_s:T;       % Time vector [s]
 L = length(t);      % Recording length [ ]
 
 % Tx
-f_c = 1e5;            % Initial frequency of chirp [Hz] 
-t_c = 1/f_c*10;        % Chirp Length [s]
-swp = 1e6/t_c;           % Sweep frequency of chirp [Hz/s]
-v = 1000000;               %platform velocity [m/s]
+f_c = 2e5;            % Initial frequency of chirp [Hz] 
+t_c = 1e-1;        % Chirp Length [s]
+swp = 2e5/t_c;           % Sweep frequency of chirp [Hz/s]
+v = 8e3;               %platform velocity [m/s]
 
 % Scatterer
 c = 3e8/1.31;
-d = 0e3;
-x_0 = 2e3;
-r1 = sqrt((x_0).^2 + d^2);   %range relay [m]
-r2 = sqrt((x_0-v*t).^2 + d^2);   %range relay [m]
-disp( "movement in chirp:" + (r2(end)-r2(1)))
-lambda_c = c/f_c;
+d = 4e3;
+x_0 = -4e3;
+r1 = sqrt((x_0 + 1*(v*t_c)).^2 + d^2);   %range relay [m] (dist end of chirp matches best b/c we chirp up)
+r2 = sqrt((x_0 + v*t).^2 + d^2);   %range relay [m] 
 
+lambda_c = c/f_c;
+disp( "movement in chirp:" + (r2(end)-r2(1)))
 %% Lets make a chirp!
 t_sub = 0:1/f_s:t_c;
 X = zeros(size(t));
@@ -77,3 +77,4 @@ legend('MF1','MF2')
 title('Match Filtered Rx in Time Domain')
 xlabel('Time (s)')
 ylabel('X(t)')
+xlim([0,1e-4])
