@@ -15,7 +15,7 @@ f_c = f_0 + swp/2;    % Center frequency [Hz]
            
 t_c = 1e-5;           % Chirp Length [s]
 % Survey Parameters
-c = 3e8/1.31;
+c = 3e8/1.79;
 lambda_c = c/f_c;     % Wavelength (center) in ice [m]
 lambda_0 = c/f_0;     % Wavelength (initial) in ice [m]
 n = 1001; 			  % surface sample points
@@ -87,7 +87,7 @@ I = processBlock(Y,X,f_s,f_c,dx,t); %Processing Az with initial freq (not center
 figure(1) %Faster plotting option, but can't see waves
 clf
 subplot(311)
-	prettyPlot(real(Y(:,i_min:i_max)'))
+	prettyPlot(real(Y'))
 	ylabel('range')
 	xlabel('along track')
 	title('Raw data')
