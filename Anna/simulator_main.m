@@ -1,4 +1,4 @@
-% Date last modified: 3/17/20
+% Date last modified: 5/7/20
 % Date created: 3/17/20
 
 % script to run the radar simulator, should simulate the radar response
@@ -141,6 +141,8 @@ for ii = 1:length(r_target)
     rx_full_pc(:,ii) = pc_sig; 
 end
 
+% TODO: y axis is offby a factor of 2, not sure whether it's a label issue
+% or a real missing 2 somewhere
 % display fake range compressed radargram
 figure
 imagesc(x_radar, t_pc*vel_ice/2, 20*log10(abs(ifftshift(rx_full_pc,1))))
@@ -148,3 +150,10 @@ xlabel('Along Track Distance Relative to Scatterer (m)')
 ylabel('Depth (m)')
 c = colorbar;
 c.Label.String = 'Power (dB)';
+
+
+%% do range migration
+
+
+%% do azimuth compression
+
